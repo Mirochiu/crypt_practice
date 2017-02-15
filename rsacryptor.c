@@ -37,7 +37,7 @@ RSA* createRSA(unsigned char * key, int public)
     BIO *keybio;
     keybio = BIO_new_mem_buf(key, -1); // -1 means auto size
     if (!keybio) {
-        LOGE( "Failed to create key BIO");
+        LOGE( "Failed to create key BIO\n");
         return 0;
     }
     if (public) {
@@ -47,7 +47,7 @@ RSA* createRSA(unsigned char * key, int public)
         rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa, NULL, NULL);
     }
     if (rsa == NULL) {
-        LOGE( "Failed to create RSA");
+        LOGE( "Failed to create RSA\n");
     }
     return rsa;
 }
@@ -112,7 +112,7 @@ unsigned char* loadKeyFile(char* pPath)
                 }
             }
             else {
-
+                LOGE("Cannot malloc for key file\n");
             }
         }
         else {
@@ -176,14 +176,14 @@ int main(int argc, unsigned char** argv)
     int decrypted_length;
 
     if (argc != 2 && argc != 4) {
-        LOGE("usage: %s <plain-text> [<private key path> <public key path>]\n", argv[0]);
+        LOGE("usage: %s <plain-text> [<public key path> <private key path>]\n", argv[0]);
         return -1;
     }
 
     if (argc > 3) {
         publicKey = loadKeyFile(argv[2]);
         if (!publicKey) {
-            LOGE("setup built-in public key");
+            LOGE("setup built-in public key\n");
             publicKey = (unsigned char*)builtin_publicKey;
         }
         else {
@@ -191,7 +191,7 @@ int main(int argc, unsigned char** argv)
         }
         privateKey = loadKeyFile(argv[3]);
         if (!privateKey) {
-            LOGE("setup built-in private key");
+            LOGE("setup built-in private key\n");
             privateKey = (unsigned char*)builtin_privateKey;
         }
         else {
@@ -206,7 +206,7 @@ int main(int argc, unsigned char** argv)
     if (argc > 1) {
         strncpy(plainText, argv[1], sizeof(plainText)-1);
     }
-    LOGD("plainText='%s'\n\n", plainText);
+    LOGD("plainText='%s' data length=%lu\n\n", plainText, strlen(plainText));
 
     encrypted_length = public_encrypt(plainText, strlen(plainText), publicKey, encrypted);
     if (encrypted_length == -1) {
